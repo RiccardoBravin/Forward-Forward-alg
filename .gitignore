@@ -3,3 +3,4 @@
 MNIST_test.txt
 MNIST_train.txt
 *.exe
+*.py
