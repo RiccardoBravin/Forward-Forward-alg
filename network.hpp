@@ -14,6 +14,7 @@ class Network{
         int predict(std::vector<float> &input);
         void train(std::vector<std::vector<float>> &x_pos, std::vector<std::vector<float>> &x_neg);
 
+        void print_net();
     private:
         int n_layers;
         std::vector<Layer> layers;
@@ -40,7 +41,9 @@ int Network::predict(std::vector<float> &input) {
     std::vector<float> temp_in(max_size);
     std::vector<float> temp_out(max_size);
     float results[labels];
+    std::fill(results, results + labels, 0);
 
+    //deriving label from input
     int label = 0;
     for(int i = 0; i < labels; i++) {
         if(input[i] == 1) {
@@ -49,6 +52,7 @@ int Network::predict(std::vector<float> &input) {
         }
     }
 
+    //run a forward pass for each label
     for(int run = 0; run < labels; run++) {
         std::cout << "label: " << run << std::endl;
         for(int i = 0; i < labels; i++) {
@@ -59,22 +63,27 @@ int Network::predict(std::vector<float> &input) {
         //forward pass
         this->layers[0].forward(input, temp_in);
 
-        for (int j = 0; j < this->layers[0].get_out_features(); j++) {
-            results[run] += temp_in[j] * temp_in[j] / this->layers[0].get_out_features();
-        }
+        // for (int j = 0; j < this->layers[0].get_out_features(); j++) {
+        //     results[run] += temp_in[j] * temp_in[j] / this->layers[0].get_out_features();
+        // }
 
         //std::cout << "forward 0 pass done" << std::endl;
 
         for (int i = 1; i < this->n_layers; i++) {    
             this->layers[i].forward(temp_in, temp_out);
             //calculate average of the square of output and add to results
-            for (int j = 0; j < this->layers[i].get_out_features(); j++) {
-                results[run] += temp_out[j] * temp_out[j] / this->layers[i].get_out_features();
-            }
+            // for (int j = 0; j < this->layers[i].get_out_features(); j++) {
+            //     results[run] += temp_out[j] * temp_out[j] / this->layers[i].get_out_features();
+            // }
             
             std::swap(temp_in, temp_out);
             //std::cout << "forward " << i << " pass done" << std::endl;
         }
+
+        for (int j = 0; j < this->layers[this->n_layers-1].get_out_features(); j++) {
+            results[run] += temp_out[j] * temp_out[j] / this->layers[this->n_layers-1].get_out_features();
+        }
+            
         
         std::cout << "results: " << results[run] << std::endl;
 
@@ -95,7 +104,7 @@ void Network::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vec
 
 
     this->layers[0].train(x_pos, x_neg, temp_pos, temp_neg);
-
+    
     for(int i = 1; i < this->n_layers; i++) {
         this->layers[i].train(temp_pos, temp_neg, out_pos, out_neg);
         std::swap(temp_pos, out_pos);
@@ -105,7 +114,12 @@ void Network::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vec
 }
 
 
-
+void Network::print_net(){
+    for(int i = 0; i < this->n_layers; i++){
+        std::cout << "layer: " << i << std::endl;
+        this->layers[i].print_weights();
+    }
+}
 
 
 

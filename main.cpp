@@ -45,9 +45,9 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
     int labels = 10;
 
-
     //read data
     std::vector<std::vector<float>> data = readFile("MNIST_test.txt");
+    
     
     //generate positive data
     std::vector<std::vector<float>> data_pos;
@@ -84,6 +84,8 @@ int main(int argc, char const *argv[])
         }
         data_neg.push_back(temp_vec);
     }
+    //shuffle negative data
+    std::random_shuffle(data_neg.begin(), data_neg.end());
 
 
 
@@ -107,6 +109,7 @@ int main(int argc, char const *argv[])
     int guess = net.predict(data_pos[0]);
     std::cout << "NN predicted: " << guess << std::endl;
     
+    
     //test train
     std::cout << "train: " << std::endl;
     for(int i = 0; i < 10; i++)
@@ -116,29 +119,25 @@ int main(int argc, char const *argv[])
     }
     std::cout << "training complete: " << std::endl;
 
-    //test output pos
-    std::cout << "input: " << std::endl;
-    for(int i = 0; i < input_size; i++)
-    {
-        std::cout << data_pos[0][i] << " ";
-    }
-    std::cout << std::endl;
 
-    guess = net.predict(data_pos[0]);
-
-    std::cout << "NN predicted: " << guess << std::endl;
     
-    //test output neg
-    std::cout << "input: " << std::endl;
-    for(int i = 0; i < input_size; i++)
+    for(int i = 0; i < 10; i++)
     {
-        std::cout << data_neg[0][i] << " ";
+        std::vector<float> test(data_pos[i]);
+    
+        //test output pos
+        std::cout << "input: " << std::endl;
+        for(int i = 0; i < input_size; i++)
+        {
+            std::cout << test[i] << " ";
+        }
+        std::cout << std::endl;
+
+        guess = net.predict(test);
+
+        std::cout << "NN predicted: " << guess << std::endl;
     }
-    std::cout << std::endl;
 
-    guess = net.predict(data_neg[0]);
-
-    std::cout << "NN predicted: " << guess << std::endl;
-
+    //net.print_net();
     return 0;
 }

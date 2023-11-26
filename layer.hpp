@@ -20,7 +20,8 @@ class Layer {
         void train(std::vector<std::vector<float>> &x_pos, std::vector<std::vector<float>> &x_neg, std::vector<std::vector<float>> &out_pos, std::vector<std::vector<float>> &out_neg);
     
         int get_out_features() {return this->out_features;}
-
+        void print_weights();
+        
     private:
         int in_features;
         int out_features;
@@ -30,6 +31,7 @@ class Layer {
         float lr;
 
         void L2Norm(const std::vector<float> &x, std::vector<float> &out);
+        
 
 };
 
@@ -89,18 +91,22 @@ void Layer::forward(std::vector<float> &input, std::vector<float> &output) {
             output[i] += norm[j] * this->weights[i][j];
         }
         output[i] += this->bias[i];
-        output[i] = std::max(0.0f, output[i]);
+        output[i] = std::max(output[i]/100, output[i]); //leaky ReLU
     }   
 }
 
 void Layer::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vector<float>> &x_neg, std::vector<std::vector<float>> &out_pos, std::vector<std::vector<float>> &out_neg){
-
-    forward(x_pos, out_pos);
-    forward(x_neg, out_neg);
+    static int prnt_count = 0;
+    //forward(x_pos, out_pos);
+    //forward(x_neg, out_neg);
     
     //the loss is (log(1/(1 + exp(-x + t))) + log(1/(1 + exp(y - t))))/2 but we directly compute the gradient
+    #pragma omp parallel for    
     for(int samp = 0; samp < out_pos.size(); samp++){
+        forward(x_pos[samp], out_pos[samp]);
+        forward(x_neg[samp], out_neg[samp]);
     
+        //std::cout << "sample: " << samp << "\n";
         float p_grad = 0;
         float n_grad = 0;
         
@@ -111,22 +117,28 @@ void Layer::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vecto
         }
 
         //std::cout << "squares pos: " << p_grad << std::endl;
-        // std::cout << "squares neg: " << n_grad << std::endl;
+        //std::cout << "squares neg: " << n_grad << std::endl;
 
-        p_grad =  2 * this->lr * (1.0/(1 + std::exp(p_grad - this->treshold)) + TINY);
-        n_grad =  -2 * this->lr * (1.0/(1 + std::exp(n_grad - this->treshold)) + TINY);
+        p_grad =  2 * this->lr * (1.0/(1 + std::exp(p_grad - this->treshold)));
+        n_grad =  -2 * this->lr * (1.0/(1 + std::exp(n_grad - this->treshold)));
 
-        // std::cout << "p_grad: " << p_grad << "\n";
-        // std::cout << "n_grad: " << n_grad << "\n";
+        // if(prnt_count % 100 == 0){
+            // std::cout << "p_grad: " << p_grad << "\n";
+            // std::cout << "n_grad: " << n_grad << "\n";
+        //     prnt_count = 0;
+        // }
+        // prnt_count++;
 
         #pragma omp parallel for //if(this->in_features > 1000)
         for(int i = 0; i < out_features; i++){
             for(int j = 0; j < in_features; j++){
+                #pragma omp atomic
                 this->weights[i][j] += (p_grad * x_pos[samp][j] * out_pos[samp][i] + n_grad * x_neg[samp][j] * out_neg[samp][i]);
-                //std::cout << "weight: " << (p_grad * x_pos[samp][j] * out_pos[samp][i] + n_grad * x_neg[samp][j] * out_neg[samp][i]) << "\n";
+                //std::cout << "weight: " << (p_grad * x_pos[samp][j] + n_grad * x_neg[samp][j]) * (out_pos[samp][i] + out_neg[samp][i]) << "\n";
             }
             this->bias[i] += (p_grad * out_pos[samp][i] + n_grad * out_neg[samp][i]);
-        }    
+        }
+
     }
 }
 
@@ -144,6 +156,15 @@ void Layer::L2Norm(const std::vector<float> &x, std::vector<float> &out){
 
 }
 
+void Layer::print_weights(){
+    for(int i = 0; i < this->out_features; i++){
+        for(int j = 0; j < this->in_features; j++){
+            std::cout << this->weights[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 
 #endif // LAYER_HPP
