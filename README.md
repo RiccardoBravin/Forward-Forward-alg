@@ -1,5 +1,5 @@
 <div align="center">
-      <h1> <img src="https://w7.pngwing.com/pngs/46/626/png-transparent-c-logo-the-c-programming-language-computer-icons-computer-programming-source-code-programming-miscellaneous-template-blue.png" width="80px"><br/>Forward Forward Algorithm in c++</h1>
+      <h1> <img src="hhttps://github.com/RiccardoBravin/Forward-Forward-alg/blob/main/Imgs/binary%20arrow.jpg" width="80px"><br/>Forward Forward Algorithm in c++</h1>
      </div>
 
 
