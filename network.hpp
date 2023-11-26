@@ -83,7 +83,7 @@ int Network::predict(std::vector<float> &input) {
     input[labels-1] = 0;
     input[label] = 1;
 
-    return std::distance(results, std::min_element(results, results + labels));
+    return std::distance(results, std::max_element(results, results + labels));
 }
 
 void Network::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vector<float>> &x_neg) {

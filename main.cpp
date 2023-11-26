@@ -20,7 +20,7 @@ std::vector<std::vector<float>> readFile (std::string file)
     std::vector<float> temp_vec;
 
     int count = 0;
-    while(std::getline(data, line) && count < 100)
+    while(std::getline(data, line))
     {
         std::stringstream lineStream(line);
         //insert label
@@ -45,14 +45,9 @@ int main(int argc, char const *argv[])
     srand(time(NULL));
     int labels = 10;
 
+
     //read data
     std::vector<std::vector<float>> data = readFile("MNIST_test.txt");
-    
-    // //print first line to check
-    // for(int i = 0; i < data[0].size(); i++){
-    //     std::cout << data[0][i] << " ";
-    // }
-    // std::cout << std::endl;
     
     //generate positive data
     std::vector<std::vector<float>> data_pos;
@@ -72,6 +67,7 @@ int main(int argc, char const *argv[])
         data_pos.push_back(temp_vec);
     }
 
+
     //generate negative data
     std::vector<std::vector<float>> data_neg;
     
@@ -88,6 +84,7 @@ int main(int argc, char const *argv[])
         }
         data_neg.push_back(temp_vec);
     }
+
 
 
     //define network
@@ -112,7 +109,7 @@ int main(int argc, char const *argv[])
     
     //test train
     std::cout << "train: " << std::endl;
-    for(int i = 0; i < 100; i++)
+    for(int i = 0; i < 10; i++)
     {   
         std::cout << "epoch: " << i << std::endl;
         net.train(data_pos, data_neg);
