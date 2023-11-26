@@ -95,7 +95,7 @@ int main(int argc, char const *argv[])
     std::cout << "training complete: " << std::endl;
 
 
-    
+    //TODO calculate accuracy doing all the forward passes in one loop
     for(int i = 0; i < 10; i++)
     {
         //test output pos

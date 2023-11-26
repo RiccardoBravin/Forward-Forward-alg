@@ -54,7 +54,7 @@ int Network::predict(std::vector<float> &input) {
 
     //run a forward pass for each label
     for(int run = 0; run < labels; run++) {
-        std::cout << "label: " << run << std::endl;
+        //std::cout << "label: " << run << std::endl;
         for(int i = 0; i < labels; i++) {
             input[i] = 0;
         }
@@ -67,8 +67,6 @@ int Network::predict(std::vector<float> &input) {
         //     results[run] += temp_in[j] * temp_in[j] / this->layers[0].get_out_features();
         // }
 
-        //std::cout << "forward 0 pass done" << std::endl;
-
         for (int i = 1; i < this->n_layers; i++) {    
             this->layers[i].forward(temp_in, temp_out);
             //calculate average of the square of output and add to results
@@ -77,7 +75,7 @@ int Network::predict(std::vector<float> &input) {
             // }
             
             std::swap(temp_in, temp_out);
-            //std::cout << "forward " << i << " pass done" << std::endl;
+            
         }
 
         for (int j = 0; j < this->layers[this->n_layers-1].get_out_features(); j++) {
@@ -85,7 +83,7 @@ int Network::predict(std::vector<float> &input) {
         }
             
         
-        std::cout << "results: " << results[run] << std::endl;
+        //std::cout << "results: " << results[run] << std::endl;
 
     }
     //resetting input
