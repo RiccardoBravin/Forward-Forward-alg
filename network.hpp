@@ -15,6 +15,7 @@ class Network{
         void train(std::vector<std::vector<float>> &x_pos, std::vector<std::vector<float>> &x_neg);
 
         void print_net();
+        void set_lr(float lr);
     private:
         int n_layers;
         std::vector<Layer> layers;
@@ -111,6 +112,12 @@ void Network::train(std::vector<std::vector<float>> &x_pos, std::vector<std::vec
 
 }
 
+void Network::set_lr(float lr){
+    this->lr = lr;
+    for(int i = 0; i < this->n_layers; i++){
+        this->layers[i].set_lr(lr);
+    }
+}
 
 void Network::print_net(){
     for(int i = 0; i < this->n_layers; i++){
